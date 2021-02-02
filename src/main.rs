@@ -22,7 +22,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(ClearColor(Color::rgb(0.78, 0.941, 0.847)))
         .add_startup_system(setup.system())
-        // .add_system(electron_physics.system())
+        .add_system(electron_physics.system())
         .run();
 }
 
@@ -46,29 +46,28 @@ fn setup(
     window.set_scale_factor_override(Some(10.0));
 }
 
-// fn electron_physics(
-//     time: Res<Time>,
-//     keyboard_input: Res<Input<KeyCode>>,
-//     mut query: Query<(&Electron, &mut Transform)>,
-// ) {
-//     for (electron, mut transform) in query.iter_mut() {
-//         let mut direction = Vec2::new(0.0, 0.0);
-//         if keyboard_input.pressed(KeyCode::Up) {
-//             direction = direction + Vec2::new(0.0, -1.0);
-//         }
-//         if keyboard_input.pressed(KeyCode::Down) {
-//             direction = direction + Vec2::new(0.0, 1.0);
-//         }
-//         if keyboard_input.pressed(KeyCode::Left) {
-//             direction = direction + Vec2::new(0.0, -1.0);
-//         }
-//         if keyboard_input.pressed(KeyCode::Right) {
-//             direction = direction + Vec2::new(0.0, 1.0);
-//         }
-//         direction = direction.normalize();
-//         let translation = &mut transform.translation;
-//         translation.x += time.delta_seconds() * direction.x * electron.speed;
-//         translation.y += time.delta_seconds() * direction.y * electron.speed;
-//         dbg!(translation);
-//     }
-// }
+fn electron_physics(
+    time: Res<Time>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<(&Electron, &mut Transform)>,
+) {
+    for (electron, mut transform) in query.iter_mut() {
+        let mut direction = Vec2::new(0.0, 0.0);
+        if keyboard_input.pressed(KeyCode::Up) {
+            direction.y += 1.0;
+        }
+        if keyboard_input.pressed(KeyCode::Down) {
+            direction.y -= 1.0;
+        }
+        if keyboard_input.pressed(KeyCode::Left) {
+            direction.x -= 1.0;
+        }
+        if keyboard_input.pressed(KeyCode::Right) {
+            direction.x += 1.0;
+        }
+        direction.normalize();
+        let translation = &mut transform.translation;
+        translation.x += time.delta_seconds() * direction.x * electron.speed;
+        translation.y += time.delta_seconds() * direction.y * electron.speed;
+    }
+}
