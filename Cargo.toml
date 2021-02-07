@@ -7,4 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "1ca8ce4a799af8dab2d926366de9ac3c8d30939c" }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "1ca8ce4a799af8dab2d926366de9ac3c8d30939c", features = [ "wav" ]}
