@@ -15,6 +15,8 @@ const ELECTRON_SIZE: f32 = 3.0;
 const COLOR_LIGHT: &str = "c7f0d8";
 const COLOR_DARK: &str = "43523d";
 
+const PLATE_ANIMATION_TIMER_PERIOD: f32 = 0.25;
+
 fn main() {
     App::build()
         .insert_resource(WindowDescriptor {
@@ -31,7 +33,7 @@ fn main() {
         .add_system(electron_physics_system.system())
         .add_system(plate_control_system.system())
         .insert_resource(PlateSelectedAnimationTimer {
-            timer: Timer::from_seconds(0.25, true),
+            timer: Timer::from_seconds(PLATE_ANIMATION_TIMER_PERIOD, true),
         })
         .run();
 }
