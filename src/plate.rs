@@ -41,10 +41,10 @@ pub fn plate_control_system(keyboard_input: Res<Input<KeyCode>>, mut query: Quer
     for mut plate in query.iter_mut() {
         if plate.selected {
             if keyboard_input.just_pressed(KeyCode::Up) {
-                plate.toggle()
+                plate.toggle();
             }
             if keyboard_input.just_pressed(KeyCode::Down) {
-                plate.off()
+                plate.off();
             }
             plate_selected = plate.id;
         }
@@ -64,10 +64,6 @@ pub fn plate_control_system(keyboard_input: Res<Input<KeyCode>>, mut query: Quer
         }
     }
     for mut plate in query.iter_mut() {
-        if plate_selected == plate.id {
-            plate.selected = true;
-        } else {
-            plate.selected = false;
-        }
+        plate.selected = plate_selected == plate.id;
     }
 }

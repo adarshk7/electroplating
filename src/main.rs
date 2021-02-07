@@ -32,8 +32,13 @@ fn main() {
         .run();
 }
 
-fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+fn setup(
+    commands: &mut Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     let material_foreground = materials.add(Color::hex(COLOR_DARK).unwrap().into());
+    let texture_plate_off = materials.add(asset_server.load("textures/plate_off.png").into());
 
     commands
         .spawn(UiCameraBundle::default())
@@ -66,31 +71,34 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
             ..Default::default()
         })
         .spawn(SpriteBundle {
-            material: material_foreground.clone(),
+            material: material_foreground,
             transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
             sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
             ..Default::default()
         })
         // Electric plates
         .spawn(SpriteBundle {
-            material: material_foreground.clone(),
+            material: texture_plate_off.clone(),
             transform: Transform::from_xyz(
                 (WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0 - 1.0,
                 0.0,
                 0.0,
             ),
-            sprite: Sprite::new(Vec2::new(1.0, 4.0)),
             ..Default::default()
         })
         .with(Plate::new(1))
         .spawn(SpriteBundle {
-            material: material_foreground,
-            transform: Transform::from_xyz(
-                0.0,
-                (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0 - 1.0,
-                0.0,
-            ),
-            sprite: Sprite::new(Vec2::new(4.0, 1.0)),
+            material: texture_plate_off,
+            transform: Transform {
+                translation: Vec3::new(
+                    0.0,
+                    (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0 - 1.0,
+                    0.0,
+                ),
+                rotation: Quat::from_rotation_z(std::f32::consts::PI / 2.0),
+                ..Default::default()
+            },
+
             ..Default::default()
         })
         .with(Plate::new(2));

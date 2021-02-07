@@ -53,7 +53,7 @@ pub fn electron_physics_system(
         electron_loc.x = electron.location.x.round();
         electron_loc.y = electron.location.y.round();
         electron_bounds(&mut electron.location);
-        dbg!(&electron);
+        // dbg!(&electron);
     }
 }
 
