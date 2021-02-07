@@ -45,7 +45,7 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
             sprite: Sprite::new(Vec2::new(ELECTRON_SIZE, ELECTRON_SIZE)),
             ..Default::default()
         })
-        .with(Electron {})
+        .with(Electron::new(2.0))
         // Outer wall
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
