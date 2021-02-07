@@ -2,6 +2,7 @@ mod electron;
 mod plate;
 
 use bevy::prelude::*;
+use bevy_webgl2::WebGL2Plugin;
 use plate::PlateSelectedAnimationTimer;
 
 use crate::electron::{electron_physics_system, Electron};
@@ -38,6 +39,7 @@ fn main() {
             polarity: PlateState::Negative,
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(bevy_webgl2::WebGL2Plugin)
         .insert_resource(ClearColor(Color::hex(COLOR_LIGHT).unwrap()))
         .add_startup_system(setup.system())
         .add_system(electron_physics_system.system())
