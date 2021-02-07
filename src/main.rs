@@ -26,17 +26,45 @@ fn main() {
 }
 
 fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+    let material_foreground = materials.add(Color::hex(COLOR_DARK).unwrap().into());
+    let wall_thickness = 1.0;
+
     commands
         .spawn(UiCameraBundle::default())
         .spawn(OrthographicCameraBundle::new_2d())
         // Electron
         .spawn(SpriteBundle {
-            material: materials.add(Color::hex(COLOR_DARK).unwrap().into()),
+            material: material_foreground.clone(),
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
             sprite: Sprite::new(Vec2::new(2.0, 2.0)),
             ..Default::default()
         })
-        .with(Electron {});
+        .with(Electron {})
+        // Outer wall
+        .spawn(SpriteBundle {
+            material: material_foreground.clone(),
+            transform: Transform::from_xyz(-(WINDOW_WIDTH - wall_thickness) / 2.0, 0.0, 0.0),
+            sprite: Sprite::new(Vec2::new(wall_thickness, WINDOW_HEIGHT)),
+            ..Default::default()
+        })
+        .spawn(SpriteBundle {
+            material: material_foreground.clone(),
+            transform: Transform::from_xyz((WINDOW_WIDTH - wall_thickness) / 2.0, 0.0, 0.0),
+            sprite: Sprite::new(Vec2::new(wall_thickness, WINDOW_HEIGHT)),
+            ..Default::default()
+        })
+        .spawn(SpriteBundle {
+            material: material_foreground.clone(),
+            transform: Transform::from_xyz(0.0, -(WINDOW_HEIGHT - wall_thickness) / 2.0, 0.0),
+            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, wall_thickness)),
+            ..Default::default()
+        })
+        .spawn(SpriteBundle {
+            material: material_foreground,
+            transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - wall_thickness) / 2.0, 0.0),
+            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, wall_thickness)),
+            ..Default::default()
+        });
 }
 
 fn electron_physics(
