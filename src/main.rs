@@ -2,10 +2,13 @@ use bevy::prelude::*;
 
 const WINDOW_HEIGHT: f32 = 48.0;
 const WINDOW_WIDTH: f32 = 84.0;
+const OUTER_WALL_THICKNESS: f32 = 1.0;
+const ELECTRON_SIZE: f32 = 3.0;
 
 const COLOR_LIGHT: &str = "c7f0d8";
 const COLOR_DARK: &str = "43523d";
 
+#[derive(Debug)]
 struct Electron {}
 
 fn main() {
@@ -27,7 +30,6 @@ fn main() {
 
 fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     let material_foreground = materials.add(Color::hex(COLOR_DARK).unwrap().into());
-    let wall_thickness = 1.0;
 
     commands
         .spawn(UiCameraBundle::default())
@@ -36,33 +38,33 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(2.0, 2.0)),
+            sprite: Sprite::new(Vec2::new(ELECTRON_SIZE, ELECTRON_SIZE)),
             ..Default::default()
         })
         .with(Electron {})
         // Outer wall
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
-            transform: Transform::from_xyz(-(WINDOW_WIDTH - wall_thickness) / 2.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(wall_thickness, WINDOW_HEIGHT)),
+            transform: Transform::from_xyz(-(WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0, 0.0, 0.0),
+            sprite: Sprite::new(Vec2::new(OUTER_WALL_THICKNESS, WINDOW_HEIGHT)),
             ..Default::default()
         })
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
-            transform: Transform::from_xyz((WINDOW_WIDTH - wall_thickness) / 2.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(wall_thickness, WINDOW_HEIGHT)),
+            transform: Transform::from_xyz((WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0, 0.0, 0.0),
+            sprite: Sprite::new(Vec2::new(OUTER_WALL_THICKNESS, WINDOW_HEIGHT)),
             ..Default::default()
         })
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
-            transform: Transform::from_xyz(0.0, -(WINDOW_HEIGHT - wall_thickness) / 2.0, 0.0),
-            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, wall_thickness)),
+            transform: Transform::from_xyz(0.0, -(WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
+            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
             ..Default::default()
         })
         .spawn(SpriteBundle {
             material: material_foreground,
-            transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - wall_thickness) / 2.0, 0.0),
-            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, wall_thickness)),
+            transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
+            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
             ..Default::default()
         });
 }
@@ -72,17 +74,34 @@ fn electron_physics(
     mut query: Query<(&mut Transform, &Electron)>,
 ) {
     for (mut transform, _) in query.iter_mut() {
-        if keyboard_input.just_pressed(KeyCode::Up) {
+        if keyboard_input.pressed(KeyCode::Up) {
             transform.translation.y += 1.0;
         }
-        if keyboard_input.just_pressed(KeyCode::Down) {
+        if keyboard_input.pressed(KeyCode::Down) {
             transform.translation.y -= 1.0;
         }
-        if keyboard_input.just_pressed(KeyCode::Left) {
+        if keyboard_input.pressed(KeyCode::Left) {
             transform.translation.x -= 1.0;
         }
-        if keyboard_input.just_pressed(KeyCode::Right) {
+        if keyboard_input.pressed(KeyCode::Right) {
             transform.translation.x += 1.0;
         }
+        // Set bounds with outer walls
+        transform.translation.y = transform
+            .translation
+            .y
+            .min((WINDOW_HEIGHT / 2.0) - OUTER_WALL_THICKNESS - ELECTRON_SIZE / 2.0);
+        transform.translation.y = transform
+            .translation
+            .y
+            .max((-WINDOW_HEIGHT / 2.0) + OUTER_WALL_THICKNESS + ELECTRON_SIZE / 2.0);
+        transform.translation.x = transform
+            .translation
+            .x
+            .min((WINDOW_WIDTH / 2.0) - OUTER_WALL_THICKNESS - ELECTRON_SIZE / 2.0);
+        transform.translation.x = transform
+            .translation
+            .x
+            .max((-WINDOW_WIDTH / 2.0) + OUTER_WALL_THICKNESS + ELECTRON_SIZE / 2.0);
     }
 }
