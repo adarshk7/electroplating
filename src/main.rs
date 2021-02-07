@@ -5,7 +5,10 @@ use bevy::prelude::*;
 use plate::PlateSelectedAnimationTimer;
 
 use crate::electron::{electron_physics_system, Electron};
-use crate::plate::{plate_control_system, Plate};
+use crate::plate::{
+    plate_control_system, polarity_indicator_board_system, Plate, PlateState,
+    PolarityIndicatorBoard,
+};
 
 const WINDOW_HEIGHT: f32 = 48.0;
 const WINDOW_WIDTH: f32 = 84.0;
@@ -14,6 +17,10 @@ const ELECTRON_SIZE: f32 = 3.0;
 
 const COLOR_LIGHT: &str = "c7f0d8";
 const COLOR_DARK: &str = "43523d";
+
+const FONT_SIZE: f32 = 4.0;
+const TEXT_POSITION_TOP: f32 = 1.0;
+const TEXT_POSITION_LEFT: f32 = 2.0;
 
 const PLATE_ANIMATION_TIMER_PERIOD: f32 = 0.25;
 
@@ -27,11 +34,15 @@ fn main() {
             scale_factor_override: Some(10.0),
             ..Default::default()
         })
+        .insert_resource(PolarityIndicatorBoard {
+            polarity: PlateState::Negative,
+        })
         .add_plugins(DefaultPlugins)
         .insert_resource(ClearColor(Color::hex(COLOR_LIGHT).unwrap()))
         .add_startup_system(setup.system())
         .add_system(electron_physics_system.system())
         .add_system(plate_control_system.system())
+        .add_system(polarity_indicator_board_system.system())
         .insert_resource(PlateSelectedAnimationTimer {
             timer: Timer::from_seconds(PLATE_ANIMATION_TIMER_PERIOD, true),
         })
@@ -111,5 +122,38 @@ fn setup(
 
             ..Default::default()
         })
-        .with(Plate::new(2));
+        .with(Plate::new(2))
+        .spawn(TextBundle {
+            text: Text {
+                sections: vec![
+                    TextSection {
+                        value: "POLARITY ".to_string(),
+                        style: TextStyle {
+                            font: asset_server.load("font/EffortsPro.ttf"),
+                            font_size: FONT_SIZE,
+                            color: Color::hex(COLOR_DARK).unwrap(),
+                        },
+                    },
+                    TextSection {
+                        value: "OFF".to_string(),
+                        style: TextStyle {
+                            font: asset_server.load("font/EffortsPro.ttf"),
+                            font_size: FONT_SIZE,
+                            color: Color::hex(COLOR_DARK).unwrap(),
+                        },
+                    },
+                ],
+                ..Default::default()
+            },
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    top: Val::Px(TEXT_POSITION_TOP),
+                    left: Val::Px(TEXT_POSITION_LEFT),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        });
 }

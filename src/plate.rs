@@ -28,13 +28,31 @@ impl Plate {
     }
 }
 
-#[derive(Debug)]
+pub struct PolarityIndicatorBoard {
+    pub polarity: PlateState,
+}
+
+#[derive(Copy, Clone, Debug)]
 pub enum PlateState {
     Positive,
     Negative,
     Off,
 }
 
+pub fn polarity_indicator_board_system(
+    polarity_indicator_board: Res<PolarityIndicatorBoard>,
+    mut query: Query<&mut Text>,
+) {
+    for mut text in query.iter_mut() {
+        text.sections[1].value = match polarity_indicator_board.polarity {
+            PlateState::Off => "OFF".to_string(),
+            PlateState::Positive => "+".to_string(),
+            PlateState::Negative => "-".to_string(),
+        };
+    }
+}
+
+#[derive(Debug)]
 pub struct PlateSelectedAnimationTimer {
     pub timer: Timer,
 }
@@ -46,6 +64,7 @@ pub fn plate_control_system(
     mut animation_timer: ResMut<PlateSelectedAnimationTimer>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
+    mut polarity_indicator_board: ResMut<PolarityIndicatorBoard>,
 ) {
     let mut plate_count = 1;
     let mut plate_selected = 1;
@@ -83,15 +102,16 @@ pub fn plate_control_system(
     }
     for (mut plate, mut visible) in query.iter_mut() {
         plate.selected = plate_selected == plate.id;
-        if plate.selected
-            && animation_timer
+        if plate.selected {
+            if animation_timer
                 .timer
                 .tick(time.delta_seconds())
                 .just_finished()
-        {
-            visible.is_visible = !visible.is_visible;
-        }
-        if !plate.selected {
+            {
+                visible.is_visible = !visible.is_visible;
+            }
+            polarity_indicator_board.polarity = plate.state;
+        } else {
             visible.is_visible = true;
         }
     }
