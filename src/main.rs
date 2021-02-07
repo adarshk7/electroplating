@@ -36,9 +36,13 @@ fn setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    audio: Res<Audio>,
 ) {
     let material_foreground = materials.add(Color::hex(COLOR_DARK).unwrap().into());
     let texture_plate_off = materials.add(asset_server.load("textures/plate_off.png").into());
+
+    let music = asset_server.load("sound/bad_melody.wav");
+    audio.play(music);
 
     commands
         .spawn(UiCameraBundle::default())
