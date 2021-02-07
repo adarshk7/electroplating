@@ -93,7 +93,7 @@ pub fn plate_control_system(
         }
     }
     if keyboard_input.just_pressed(KeyCode::Right) {
-        let music = asset_server.load("sound/blip9.wav");
+        let music = asset_server.load("sound/blip8.wav");
         audio.play(music);
         plate_selected += 1;
         if plate_selected > plate_count {
