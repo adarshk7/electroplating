@@ -2,6 +2,7 @@ mod electron;
 mod plate;
 
 use bevy::prelude::*;
+use plate::PlateSelectedAnimationTimer;
 
 use crate::electron::{electron_physics_system, Electron};
 use crate::plate::{plate_control_system, Plate};
@@ -29,6 +30,9 @@ fn main() {
         .add_startup_system(setup.system())
         .add_system(electron_physics_system.system())
         .add_system(plate_control_system.system())
+        .insert_resource(PlateSelectedAnimationTimer {
+            timer: Timer::from_seconds(0.25, true),
+        })
         .run();
 }
 
@@ -75,7 +79,7 @@ fn setup(
             ..Default::default()
         })
         .spawn(SpriteBundle {
-            material: material_foreground,
+            material: material_foreground.clone(),
             transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
             sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
             ..Default::default()

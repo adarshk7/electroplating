@@ -35,15 +35,21 @@ pub enum PlateState {
     Off,
 }
 
+pub struct PlateSelectedAnimationTimer {
+    pub timer: Timer,
+}
+
 pub fn plate_control_system(
+    time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Plate>,
+    mut query: Query<(&mut Plate, &mut Visible)>,
+    mut animation_timer: ResMut<PlateSelectedAnimationTimer>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
 ) {
     let mut plate_count = 1;
     let mut plate_selected = 1;
-    for mut plate in query.iter_mut() {
+    for (mut plate, _) in query.iter_mut() {
         if plate.selected {
             if keyboard_input.just_pressed(KeyCode::Up) {
                 let music = asset_server.load("sound/blip5.wav");
@@ -58,7 +64,6 @@ pub fn plate_control_system(
             plate_selected = plate.id;
         }
         plate_count = plate_count.max(plate.id);
-        dbg!(&plate);
     }
     if keyboard_input.just_pressed(KeyCode::Left) {
         let music = asset_server.load("sound/blip8.wav");
@@ -76,7 +81,18 @@ pub fn plate_control_system(
             plate_selected = 1;
         }
     }
-    for mut plate in query.iter_mut() {
+    for (mut plate, mut visible) in query.iter_mut() {
         plate.selected = plate_selected == plate.id;
+        if plate.selected
+            && animation_timer
+                .timer
+                .tick(time.delta_seconds())
+                .just_finished()
+        {
+            visible.is_visible = !visible.is_visible;
+        }
+        if !plate.selected {
+            visible.is_visible = true;
+        }
     }
 }
