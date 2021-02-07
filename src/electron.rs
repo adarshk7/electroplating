@@ -32,16 +32,13 @@ pub fn electron_physics_system(
         let mut components: Vec<Vec3> = Vec::new();
         for (plate_transform, plate) in query_plates.iter() {
             let plate_loc = &plate_transform.translation;
-            let magnitude_inverse_squared = 1.0 / (*plate_loc - *electron_loc).length_squared();
+            let magnitude_inverse_squared =
+                INVERSE_SQUARE_ATTRACTION_FACTOR / (*plate_loc - *electron_loc).length_squared();
             let direction = *plate_loc - *electron_loc;
             direction.normalize();
             let force_component_vector = match plate.state {
-                PlateState::Negative => {
-                    INVERSE_SQUARE_ATTRACTION_FACTOR * direction * -1.0 * magnitude_inverse_squared
-                }
-                PlateState::Positive => {
-                    INVERSE_SQUARE_ATTRACTION_FACTOR * direction * 1.0 * magnitude_inverse_squared
-                }
+                PlateState::Negative => direction * -1.0 * magnitude_inverse_squared,
+                PlateState::Positive => direction * 1.0 * magnitude_inverse_squared,
                 PlateState::Off => direction * 0.0,
             };
             components.push(force_component_vector);

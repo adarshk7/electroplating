@@ -50,7 +50,7 @@ fn setup(
             sprite: Sprite::new(Vec2::new(ELECTRON_SIZE, ELECTRON_SIZE)),
             ..Default::default()
         })
-        .with(Electron::new(3.0))
+        .with(Electron::new(5.0))
         // Outer wall
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
