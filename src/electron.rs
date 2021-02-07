@@ -4,6 +4,9 @@ use crate::{
     plate::{Plate, PlateState},
     ELECTRON_SIZE, OUTER_WALL_THICKNESS, WINDOW_HEIGHT, WINDOW_WIDTH,
 };
+
+const INVERSE_SQUARE_ATTRACTION_FACTOR: f32 = 20.0;
+
 #[derive(Debug)]
 pub struct Electron {
     pub location: Vec3,
@@ -33,8 +36,12 @@ pub fn electron_physics_system(
             let direction = *plate_loc - *electron_loc;
             direction.normalize();
             let force_component_vector = match plate.state {
-                PlateState::Negative => 5.0 * direction * -1.0 * magnitude_inverse_squared,
-                PlateState::Positive => 5.0 * direction * 1.0 * magnitude_inverse_squared,
+                PlateState::Negative => {
+                    INVERSE_SQUARE_ATTRACTION_FACTOR * direction * -1.0 * magnitude_inverse_squared
+                }
+                PlateState::Positive => {
+                    INVERSE_SQUARE_ATTRACTION_FACTOR * direction * 1.0 * magnitude_inverse_squared
+                }
                 PlateState::Off => direction * 0.0,
             };
             components.push(force_component_vector);
