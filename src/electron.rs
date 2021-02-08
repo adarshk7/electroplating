@@ -14,11 +14,8 @@ pub struct Electron {
 }
 
 impl Electron {
-    pub fn new(speed: f32) -> Self {
-        Self {
-            location: Vec3::new(0.0, 0.0, 0.0),
-            speed,
-        }
+    pub fn new(speed: f32, location: Vec3) -> Self {
+        Self { location, speed }
     }
 }
 

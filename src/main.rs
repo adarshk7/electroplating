@@ -57,6 +57,7 @@ fn setup(
 ) {
     let material_foreground = materials.add(Color::hex(COLOR_DARK).unwrap().into());
     let texture_plate_off = materials.add(asset_server.load("textures/plate_off.png").into());
+    let texture_exit = materials.add(asset_server.load("textures/exit.png").into());
 
     let music = asset_server.load("sound/bad_melody.wav");
     audio.play(music);
@@ -71,7 +72,7 @@ fn setup(
             sprite: Sprite::new(Vec2::new(ELECTRON_SIZE, ELECTRON_SIZE)),
             ..Default::default()
         })
-        .with(Electron::new(10.0))
+        .with(Electron::new(10.0, Vec3::new(-35.0, 15.0, 0.0)))
         // Outer wall
         .spawn(SpriteBundle {
             material: material_foreground.clone(),
@@ -97,12 +98,25 @@ fn setup(
             sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
             ..Default::default()
         })
+        // Middle wall
+        .spawn(SpriteBundle {
+            material: material_foreground,
+            transform: Transform::from_xyz(-20.0, 0.0, 0.0),
+            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH - 20.0, 2.0)),
+            ..Default::default()
+        })
+        // Exit
+        .spawn(SpriteBundle {
+            material: texture_exit,
+            transform: Transform::from_xyz(-35.0, -15.0, 0.0),
+            ..Default::default()
+        })
         // Electric plates
         .spawn(SpriteBundle {
             material: texture_plate_off.clone(),
             transform: Transform::from_xyz(
                 (WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0 - 1.0,
-                0.0,
+                -7.0,
                 0.0,
             ),
             ..Default::default()
@@ -112,7 +126,7 @@ fn setup(
             material: texture_plate_off,
             transform: Transform {
                 translation: Vec3::new(
-                    0.0,
+                    10.0,
                     (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0 - 1.0,
                     0.0,
                 ),
