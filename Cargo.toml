@@ -8,7 +8,7 @@ authors = [
 edition = "2018"
 
 [features]
-default = ["bevy/bevy_winit", "bevy/render", "bevy/bevy_gltf", "bevy/png", "bevy/wav"]
+default = ["bevy/bevy_winit", "bevy/render", "bevy/bevy_gltf", "bevy/png"]
 native = ["bevy/bevy_wgpu", "bevy/x11"]
 web = ["bevy_webgl2"]
 

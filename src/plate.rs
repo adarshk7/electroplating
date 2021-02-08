@@ -62,8 +62,6 @@ pub fn plate_control_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Plate, &mut Visible)>,
     mut animation_timer: ResMut<PlateSelectedAnimationTimer>,
-    asset_server: Res<AssetServer>,
-    audio: Res<Audio>,
     mut polarity_indicator_board: ResMut<PolarityIndicatorBoard>,
 ) {
     let mut plate_count = 1;
@@ -71,13 +69,9 @@ pub fn plate_control_system(
     for (mut plate, _) in query.iter_mut() {
         if plate.selected {
             if keyboard_input.just_pressed(KeyCode::Up) {
-                let music = asset_server.load("sound/blip5.wav");
-                audio.play(music);
                 plate.toggle();
             }
             if keyboard_input.just_pressed(KeyCode::Down) {
-                let music = asset_server.load("sound/blip3.wav");
-                audio.play(music);
                 plate.off();
             }
             plate_selected = plate.id;
@@ -85,16 +79,12 @@ pub fn plate_control_system(
         plate_count = plate_count.max(plate.id);
     }
     if keyboard_input.just_pressed(KeyCode::Left) {
-        let music = asset_server.load("sound/blip8.wav");
-        audio.play(music);
         plate_selected -= 1;
         if plate_selected < 1 {
             plate_selected = plate_count;
         }
     }
     if keyboard_input.just_pressed(KeyCode::Right) {
-        let music = asset_server.load("sound/blip8.wav");
-        audio.play(music);
         plate_selected += 1;
         if plate_selected > plate_count {
             plate_selected = 1;
