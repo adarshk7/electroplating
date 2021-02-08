@@ -1,26 +1,23 @@
 [package]
 name = "nokia3310-jam-3-game"
 version = "0.1.0"
-authors = ["Adarsh Krishnan <adarsh.krishnan@wolt.com>", "ollipa <olli@paakkunainen.fi>"]
+authors = [
+  "Adarsh Krishnan <adarsh.krishnan@wolt.com>",
+  "Olli Paakkunainen <olli@paakkunainen.fi>",
+]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [features]
+default = ["bevy/bevy_winit", "bevy/render", "bevy/bevy_gltf", "bevy/png", "bevy/wav"]
+native = ["bevy/bevy_wgpu", "bevy/x11"]
+web = ["bevy_webgl2"]
 
-native = [
-  "bevy/bevy_wgpu",
-]
 
-web = [
-  "bevy_webgl2"
-]
+[dependencies.bevy]
+git = "https://github.com/bevyengine/bevy"
+rev = "1ca8ce4a799af8dab2d926366de9ac3c8d30939c"
+default-features = false
 
-[dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "1ca8ce4a799af8dab2d926366de9ac3c8d30939c", features = [ "wav" ]}
-bevy_webgl2 = {version="0.4.0", optional=true}
-winit = {version = "0.24.0"}
-uuid = {version="=0.8.1"}
-
-[profile.dev]
-opt-level = 1
+[dependencies.bevy_webgl2]
+version = "0.4"
+optional = true

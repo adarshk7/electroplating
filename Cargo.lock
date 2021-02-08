@@ -460,15 +460,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_dynamic_plugin"
-version = "0.4.0"
-source = "git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c#1ca8ce4a799af8dab2d926366de9ac3c8d30939c"
-dependencies = [
- "bevy_app 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "libloading",
-]
-
-[[package]]
 name = "bevy_ecs"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -527,18 +518,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "bevy_gilrs"
-version = "0.4.0"
-source = "git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c#1ca8ce4a799af8dab2d926366de9ac3c8d30939c"
-dependencies = [
- "bevy_app 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "bevy_ecs 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "bevy_input 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "bevy_utils 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "gilrs",
 ]
 
 [[package]]
@@ -650,9 +629,7 @@ dependencies = [
  "bevy_core 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
  "bevy_derive 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
  "bevy_diagnostic 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "bevy_dynamic_plugin",
  "bevy_ecs 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
- "bevy_gilrs",
  "bevy_gltf 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
  "bevy_input 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
  "bevy_log 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
@@ -1515,16 +1492,6 @@ checksum = "a2df960f5d869b2dd8532793fde43eb5427cceb126c929747a26823ab0eeb536"
 
 [[package]]
 name = "core-foundation"
-version = "0.6.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25b9e03f145fd4f2bf705e07b900cd41fc636598fe5dc452fd0db1441c3f496d"
-dependencies = [
- "core-foundation-sys 0.6.2",
- "libc",
-]
-
-[[package]]
-name = "core-foundation"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
@@ -1643,7 +1610,7 @@ dependencies = [
  "js-sys",
  "lazy_static",
  "libc",
- "mach 0.3.2",
+ "mach",
  "ndk",
  "ndk-glue",
  "nix 0.15.0",
@@ -2178,39 +2145,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gilrs"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b64ac678e1174eb012be1cfd409ff2483f23cb79bc880ce4737147245b0fbff"
-dependencies = [
- "fnv",
- "gilrs-core",
- "log",
- "stdweb 0.4.20",
- "uuid",
- "vec_map",
-]
-
-[[package]]
-name = "gilrs-core"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1024d4046c5c67d2adb8c90f6ed235163b58e05d35a63bf699b53f0cceeba2c6"
-dependencies = [
- "core-foundation 0.6.4",
- "io-kit-sys",
- "libc",
- "libudev-sys",
- "log",
- "nix 0.18.0",
- "rusty-xinput",
- "stdweb 0.4.20",
- "uuid",
- "vec_map",
- "winapi 0.3.9",
-]
-
-[[package]]
 name = "gimli"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2421,7 +2355,6 @@ dependencies = [
  "num-rational",
  "num-traits",
  "png",
- "scoped_threadpool",
 ]
 
 [[package]]
@@ -2476,16 +2409,6 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "io-kit-sys"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f21dcc74995dd4cd090b147e79789f8d65959cbfb5f0b118002db869ea3bd0a0"
-dependencies = [
- "core-foundation-sys 0.6.2",
- "mach 0.2.3",
 ]
 
 [[package]]
@@ -2628,16 +2551,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fc7aa29613bd6a620df431842069224d8bc9011086b1db4c0e0cd47fa03ec9a"
 
 [[package]]
-name = "libudev-sys"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c8469b4a23b962c1396b9b451dda50ef5b283e8dd309d69033475fa9b334324"
-dependencies = [
- "libc",
- "pkg-config",
-]
-
-[[package]]
 name = "lock_api"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2653,15 +2566,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
 dependencies = [
  "cfg-if 1.0.0",
-]
-
-[[package]]
-name = "mach"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86dd2487cdfea56def77b88438a2c915fb45113c5319bfe7e14306ca4cd0b0e1"
-dependencies = [
- "libc",
 ]
 
 [[package]]
@@ -2730,26 +2634,6 @@ dependencies = [
  "foreign-types",
  "log",
  "objc",
-]
-
-[[package]]
-name = "minimp3"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "985438f75febf74c392071a975a29641b420dd84431135a6e6db721de4b74372"
-dependencies = [
- "minimp3-sys",
- "slice-deque",
- "thiserror",
-]
-
-[[package]]
-name = "minimp3-sys"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e21c73734c69dc95696c9ed8926a2b393171d98b3f5f5935686a26a487ab9b90"
-dependencies = [
- "cc",
 ]
 
 [[package]]
@@ -2941,8 +2825,6 @@ version = "0.1.0"
 dependencies = [
  "bevy 0.4.0 (git+https://github.com/bevyengine/bevy?rev=1ca8ce4a799af8dab2d926366de9ac3c8d30939c)",
  "bevy_webgl2",
- "uuid",
- "winit",
 ]
 
 [[package]]
@@ -3461,7 +3343,6 @@ checksum = "c9683532495146e98878d4948fa1a1953f584cd923f2a5f5c26b7a8701b56943"
 dependencies = [
  "cpal",
  "hound",
- "minimp3",
 ]
 
 [[package]]
@@ -3520,17 +3401,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rusty-xinput"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2aa654bc32eb9ca14cce1a084abc9dfe43949a4547c35269a094c39272db3bb"
-dependencies = [
- "lazy_static",
- "log",
- "winapi 0.3.9",
-]
-
-[[package]]
 name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3550,12 +3420,6 @@ name = "scoped-tls"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea6a9290e3c9cf0f18145ef7ffa62d68ee0bf5fcd651017e586dc7fd5da448c2"
-
-[[package]]
-name = "scoped_threadpool"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d51f5df5af43ab3f1360b429fa5e0152ac5ce8c0bd6485cae490332e96846a8"
 
 [[package]]
 name = "scopeguard"
@@ -3667,17 +3531,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 
 [[package]]
-name = "slice-deque"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31ef6ee280cdefba6d2d0b4b78a84a1c1a3f3a4cec98c2d4231c8bc225de0f25"
-dependencies = [
- "libc",
- "mach 0.3.2",
- "winapi 0.3.9",
-]
-
-[[package]]
 name = "slotmap"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3786,8 +3639,6 @@ checksum = "d022496b16281348b52d0e30ae99e01a73d737b2f45d38fed4edf79f9325a1d5"
 dependencies = [
  "discard",
  "rustc_version",
- "serde",
- "serde_json",
  "stdweb-derive",
  "stdweb-internal-macros",
  "stdweb-internal-runtime",
@@ -4172,12 +4023,6 @@ name = "vec-arena"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eafc1b9b2dfc6f5529177b62cf806484db55b32dc7c9658a118e11bbeb33061d"
-
-[[package]]
-name = "vec_map"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
 
 [[package]]
 name = "version_check"
