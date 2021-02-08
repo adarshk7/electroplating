@@ -27,7 +27,7 @@ const PLATE_ANIMATION_TIMER_PERIOD: f32 = 0.25;
 fn main() {
     App::build()
         .insert_resource(WindowDescriptor {
-            title: "Nokia 3310 Game Jam 3".to_string(),
+            title: "Electroplating".to_string(),
             width: WINDOW_WIDTH,
             height: WINDOW_HEIGHT,
             vsync: true,
