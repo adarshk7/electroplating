@@ -19,5 +19,6 @@ rev = "1ca8ce4a799af8dab2d926366de9ac3c8d30939c"
 default-features = false
 
 [dependencies.bevy_webgl2]
-version = "0.4"
+git = "https://github.com/ollipa/bevy_webgl2"
+branch = "update-for-bevy-master"
 optional = true
