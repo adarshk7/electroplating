@@ -7,7 +7,7 @@ use crate::{
 
 const INVERSE_SQUARE_ATTRACTION_FACTOR: f32 = 20.0;
 
-#[derive(Debug)]
+#[derive(Debug, Component)]
 pub struct Electron {
     pub location: Vec3,
     pub speed: f32,
@@ -21,7 +21,7 @@ impl Electron {
 
 pub fn electron_physics_system(
     time: Res<Time>,
-    mut query_electron: Query<(&mut Transform, &mut Electron)>,
+    mut query_electron: Query<(&mut Transform, &mut Electron), Without<Plate>>,
     query_plates: Query<(&Transform, &Plate)>,
 ) {
     for (mut electron_transform, mut electron) in query_electron.iter_mut() {
@@ -32,7 +32,6 @@ pub fn electron_physics_system(
             let magnitude_inverse_squared =
                 INVERSE_SQUARE_ATTRACTION_FACTOR / (*plate_loc - *electron_loc).length_squared();
             let direction = *plate_loc - *electron_loc;
-            direction.normalize();
             let force_component_vector = match plate.state {
                 PlateState::Negative => direction * -1.0 * magnitude_inverse_squared,
                 PlateState::Positive => direction * 1.0 * magnitude_inverse_squared,
@@ -41,13 +40,11 @@ pub fn electron_physics_system(
             components.push(force_component_vector);
         }
         let force = components.iter().sum::<Vec3>();
-        force.normalize();
         let delta_pixel: Vec3 = force * time.delta_seconds() * electron.speed;
         electron.location += delta_pixel;
         electron_loc.x = electron.location.x.round();
         electron_loc.y = electron.location.y.round();
         electron_bounds(&mut electron.location);
-        // dbg!(&electron);
     }
 }
 

@@ -1,10 +1,18 @@
 [package]
-name = "nokia3310-jam-3-game"
+name = "electroplating"
+description = "A game for the Nokia 3310 Jam 3"
 version = "0.1.0"
-authors = ["Adarsh Krishnan <adarsh.krishnan@wolt.com>", "ollipa <olli@paakkunainen.fi>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = [
+    "Adarsh Krishnan <adarsh.krishnan@wolt.com>",
+    "ollipa <olli@paakkunainen.fi>",
+]
+edition = "2021"
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "1ca8ce4a799af8dab2d926366de9ac3c8d30939c", features = [ "wav" ]}
+bevy = { version = "0.12.1", features = ["wav"] }
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

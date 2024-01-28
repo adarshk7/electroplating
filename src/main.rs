@@ -1,10 +1,15 @@
+mod asset_loader;
 mod electron;
 mod plate;
 
+use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
-use plate::PlateSelectedAnimationTimer;
+use bevy::render::camera::ScalingMode;
+use bevy::window::WindowResolution;
 
+use crate::asset_loader::AssetLoaderPlugin;
 use crate::electron::{electron_physics_system, Electron};
+use crate::plate::PlateSelectedAnimationTimer;
 use crate::plate::{
     plate_control_system, polarity_indicator_board_system, Plate, PlateState,
     PolarityIndicatorBoard,
@@ -25,105 +30,140 @@ const TEXT_POSITION_LEFT: f32 = 2.0;
 const PLATE_ANIMATION_TIMER_PERIOD: f32 = 0.25;
 
 fn main() {
-    App::build()
-        .insert_resource(WindowDescriptor {
-            title: "Electroplating".to_string(),
-            width: WINDOW_WIDTH,
-            height: WINDOW_HEIGHT,
-            vsync: true,
-            scale_factor_override: Some(10.0),
-            ..Default::default()
-        })
-        .insert_resource(PolarityIndicatorBoard {
-            polarity: PlateState::Negative,
-        })
-        .add_plugins(DefaultPlugins)
-        .insert_resource(ClearColor(Color::hex(COLOR_LIGHT).unwrap()))
-        .add_startup_system(setup.system())
-        .add_system(electron_physics_system.system())
-        .add_system(plate_control_system.system())
-        .add_system(polarity_indicator_board_system.system())
-        .insert_resource(PlateSelectedAnimationTimer {
-            timer: Timer::from_seconds(PLATE_ANIMATION_TIMER_PERIOD, true),
-        })
-        .run();
+    let mut app = App::new();
+
+    app.insert_resource(PolarityIndicatorBoard {
+        polarity: PlateState::Negative,
+    });
+    app.insert_resource(PlateSelectedAnimationTimer {
+        timer: Timer::from_seconds(PLATE_ANIMATION_TIMER_PERIOD, TimerMode::Repeating),
+    });
+    app.insert_resource(ClearColor(Color::hex(COLOR_LIGHT).unwrap()));
+
+    let mut resolution = WindowResolution::new(WINDOW_WIDTH, WINDOW_HEIGHT);
+    resolution.set_scale_factor_override(Some(10.0));
+
+    app.add_plugins((
+        DefaultPlugins
+            .set(ImagePlugin::default_nearest())
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Electroplating".into(),
+                    resolution,
+                    resizable: false,
+                    ..default()
+                }),
+                ..default()
+            }),
+        AssetLoaderPlugin,
+    ));
+    app.add_systems(Startup, setup);
+    app.add_systems(Update, electron_physics_system);
+    app.add_systems(Update, plate_control_system);
+    app.add_systems(Update, polarity_indicator_board_system);
+    app.run();
 }
 
-fn setup(
-    commands: &mut Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    audio: Res<Audio>,
-) {
-    let material_foreground = materials.add(Color::hex(COLOR_DARK).unwrap().into());
-    let texture_plate_off = materials.add(asset_server.load("textures/plate_off.png").into());
-    let texture_exit = materials.add(asset_server.load("textures/exit.png").into());
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let texture_plate_off = asset_server.load("textures/plate_off.png");
+    let texture_exit = asset_server.load("textures/exit.png");
+    let music: Handle<AudioSource> = asset_server.load("sound/bad_melody.wav");
 
-    let music = asset_server.load("sound/bad_melody.wav");
-    audio.play(music);
+    let mut camera = Camera2dBundle::default();
+    camera.projection.scaling_mode = ScalingMode::WindowSize(1.0);
+    commands.spawn(camera);
 
-    commands
-        .spawn(UiCameraBundle::default())
-        .spawn(OrthographicCameraBundle::new_2d())
-        // Electron
-        .spawn(SpriteBundle {
-            material: material_foreground.clone(),
+    commands.spawn(AudioSourceBundle {
+        source: music,
+        settings: PlaybackSettings {
+            mode: PlaybackMode::Once,
+            ..default()
+        },
+    });
+    // Electron
+    commands.spawn((
+        SpriteBundle {
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(ELECTRON_SIZE, ELECTRON_SIZE)),
-            ..Default::default()
-        })
-        .with(Electron::new(10.0, Vec3::new(-35.0, 15.0, 0.0)))
-        // Outer wall
-        .spawn(SpriteBundle {
-            material: material_foreground.clone(),
-            transform: Transform::from_xyz(-(WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(OUTER_WALL_THICKNESS, WINDOW_HEIGHT)),
-            ..Default::default()
-        })
-        .spawn(SpriteBundle {
-            material: material_foreground.clone(),
-            transform: Transform::from_xyz((WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(OUTER_WALL_THICKNESS, WINDOW_HEIGHT)),
-            ..Default::default()
-        })
-        .spawn(SpriteBundle {
-            material: material_foreground.clone(),
-            transform: Transform::from_xyz(0.0, -(WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
-            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
-            ..Default::default()
-        })
-        .spawn(SpriteBundle {
-            material: material_foreground.clone(),
-            transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
-            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
-            ..Default::default()
-        })
-        // Middle wall
-        .spawn(SpriteBundle {
-            material: material_foreground,
-            transform: Transform::from_xyz(-20.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(WINDOW_WIDTH - 20.0, 2.0)),
-            ..Default::default()
-        })
-        // Exit
-        .spawn(SpriteBundle {
-            material: texture_exit,
-            transform: Transform::from_xyz(-35.0, -15.0, 0.0),
-            ..Default::default()
-        })
-        // Electric plates
-        .spawn(SpriteBundle {
-            material: texture_plate_off.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(ELECTRON_SIZE, ELECTRON_SIZE)),
+                color: Color::hex(COLOR_DARK).unwrap(),
+                ..default()
+            },
+            visibility: Visibility::Visible,
+            ..default()
+        },
+        Electron::new(10.0, Vec3::new(-35.0, 15.0, 0.0)),
+    ));
+    // Outer wall
+    commands.spawn(SpriteBundle {
+        transform: Transform::from_xyz(-(WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0, 0.0, 0.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(OUTER_WALL_THICKNESS, WINDOW_HEIGHT)),
+            color: Color::hex(COLOR_DARK).unwrap(),
+            ..default()
+        },
+        ..default()
+    });
+    commands.spawn(SpriteBundle {
+        transform: Transform::from_xyz((WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0, 0.0, 0.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(OUTER_WALL_THICKNESS, WINDOW_HEIGHT)),
+            color: Color::hex(COLOR_DARK).unwrap(),
+            ..default()
+        },
+        ..default()
+    });
+    commands.spawn(SpriteBundle {
+        transform: Transform::from_xyz(0.0, -(WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
+            color: Color::hex(COLOR_DARK).unwrap(),
+            ..default()
+        },
+        ..default()
+    });
+    commands.spawn(SpriteBundle {
+        transform: Transform::from_xyz(0.0, (WINDOW_HEIGHT - OUTER_WALL_THICKNESS) / 2.0, 0.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(WINDOW_WIDTH, OUTER_WALL_THICKNESS)),
+            color: Color::hex(COLOR_DARK).unwrap(),
+            ..default()
+        },
+        ..default()
+    });
+    // Middle wall
+    commands.spawn(SpriteBundle {
+        transform: Transform::from_xyz(-20.0, 0.0, 0.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(WINDOW_WIDTH - 20.0, 2.0)),
+            color: Color::hex(COLOR_DARK).unwrap(),
+            ..default()
+        },
+        ..default()
+    });
+    // Exit
+    commands.spawn(SpriteBundle {
+        texture: texture_exit,
+        transform: Transform::from_xyz(-35.0, -15.0, 0.0),
+        ..default()
+    });
+    // Electric plates
+    commands.spawn((
+        SpriteBundle {
+            texture: texture_plate_off.clone(),
             transform: Transform::from_xyz(
                 (WINDOW_WIDTH - OUTER_WALL_THICKNESS) / 2.0 - 1.0,
                 -7.0,
                 0.0,
             ),
-            ..Default::default()
-        })
-        .with(Plate::new(1))
-        .spawn(SpriteBundle {
-            material: texture_plate_off,
+            visibility: Visibility::Visible,
+            ..default()
+        },
+        Plate::new(1),
+    ));
+    commands.spawn((
+        SpriteBundle {
+            texture: texture_plate_off,
             transform: Transform {
                 translation: Vec3::new(
                     10.0,
@@ -131,43 +171,42 @@ fn setup(
                     0.0,
                 ),
                 rotation: Quat::from_rotation_z(std::f32::consts::PI / 2.0),
-                ..Default::default()
+                ..default()
             },
-
-            ..Default::default()
-        })
-        .with(Plate::new(2))
-        .spawn(TextBundle {
-            text: Text {
-                sections: vec![
-                    TextSection {
-                        value: "POLARITY ".to_string(),
-                        style: TextStyle {
-                            font: asset_server.load("font/EffortsPro.ttf"),
-                            font_size: FONT_SIZE,
-                            color: Color::hex(COLOR_DARK).unwrap(),
-                        },
+            visibility: Visibility::Visible,
+            ..default()
+        },
+        Plate::new(2),
+    ));
+    // UI text
+    commands.spawn(TextBundle {
+        text: Text {
+            sections: vec![
+                TextSection {
+                    value: "POLARITY ".to_string(),
+                    style: TextStyle {
+                        font: asset_server.load("font/EffortsPro.ttf"),
+                        font_size: FONT_SIZE,
+                        color: Color::hex(COLOR_DARK).unwrap(),
                     },
-                    TextSection {
-                        value: "OFF".to_string(),
-                        style: TextStyle {
-                            font: asset_server.load("font/EffortsPro.ttf"),
-                            font_size: FONT_SIZE,
-                            color: Color::hex(COLOR_DARK).unwrap(),
-                        },
-                    },
-                ],
-                ..Default::default()
-            },
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect {
-                    top: Val::Px(TEXT_POSITION_TOP),
-                    left: Val::Px(TEXT_POSITION_LEFT),
-                    ..Default::default()
                 },
-                ..Default::default()
-            },
-            ..Default::default()
-        });
+                TextSection {
+                    value: "OFF".to_string(),
+                    style: TextStyle {
+                        font: asset_server.load("font/EffortsPro.ttf"),
+                        font_size: FONT_SIZE,
+                        color: Color::hex(COLOR_DARK).unwrap(),
+                    },
+                },
+            ],
+            ..default()
+        },
+        style: Style {
+            position_type: PositionType::Absolute,
+            top: Val::Px(TEXT_POSITION_TOP),
+            left: Val::Px(TEXT_POSITION_LEFT),
+            ..default()
+        },
+        ..default()
+    });
 }

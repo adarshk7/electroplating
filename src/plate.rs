@@ -1,5 +1,9 @@
+use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
-#[derive(Debug)]
+
+use crate::asset_loader::AudioAssets;
+
+#[derive(Debug, Component)]
 pub struct Plate {
     id: usize,
     pub state: PlateState,
@@ -28,6 +32,7 @@ impl Plate {
     }
 }
 
+#[derive(Resource)]
 pub struct PolarityIndicatorBoard {
     pub polarity: PlateState,
 }
@@ -52,18 +57,18 @@ pub fn polarity_indicator_board_system(
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Resource)]
 pub struct PlateSelectedAnimationTimer {
     pub timer: Timer,
 }
 
 pub fn plate_control_system(
+    mut commands: Commands,
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Plate, &mut Visible)>,
+    mut query: Query<(&mut Plate, &mut Visibility)>,
     mut animation_timer: ResMut<PlateSelectedAnimationTimer>,
-    asset_server: Res<AssetServer>,
-    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut polarity_indicator_board: ResMut<PolarityIndicatorBoard>,
 ) {
     let mut plate_count = 1;
@@ -71,13 +76,23 @@ pub fn plate_control_system(
     for (mut plate, _) in query.iter_mut() {
         if plate.selected {
             if keyboard_input.just_pressed(KeyCode::Up) {
-                let music = asset_server.load("sound/blip5.wav");
-                audio.play(music);
+                commands.spawn(AudioSourceBundle {
+                    source: audio_assets.blip5.clone(),
+                    settings: PlaybackSettings {
+                        mode: PlaybackMode::Despawn,
+                        ..default()
+                    },
+                });
                 plate.toggle();
             }
             if keyboard_input.just_pressed(KeyCode::Down) {
-                let music = asset_server.load("sound/blip3.wav");
-                audio.play(music);
+                commands.spawn(AudioSourceBundle {
+                    source: audio_assets.blip3.clone(),
+                    settings: PlaybackSettings {
+                        mode: PlaybackMode::Despawn,
+                        ..default()
+                    },
+                });
                 plate.off();
             }
             plate_selected = plate.id;
@@ -85,16 +100,26 @@ pub fn plate_control_system(
         plate_count = plate_count.max(plate.id);
     }
     if keyboard_input.just_pressed(KeyCode::Left) {
-        let music = asset_server.load("sound/blip8.wav");
-        audio.play(music);
+        commands.spawn(AudioSourceBundle {
+            source: audio_assets.blip8.clone(),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn,
+                ..default()
+            },
+        });
         plate_selected -= 1;
         if plate_selected < 1 {
             plate_selected = plate_count;
         }
     }
     if keyboard_input.just_pressed(KeyCode::Right) {
-        let music = asset_server.load("sound/blip8.wav");
-        audio.play(music);
+        commands.spawn(AudioSourceBundle {
+            source: audio_assets.blip8.clone(),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn,
+                ..default()
+            },
+        });
         plate_selected += 1;
         if plate_selected > plate_count {
             plate_selected = 1;
@@ -103,16 +128,16 @@ pub fn plate_control_system(
     for (mut plate, mut visible) in query.iter_mut() {
         plate.selected = plate_selected == plate.id;
         if plate.selected {
-            if animation_timer
-                .timer
-                .tick(time.delta_seconds())
-                .just_finished()
-            {
-                visible.is_visible = !visible.is_visible;
+            if animation_timer.timer.tick(time.delta()).just_finished() {
+                if *visible == Visibility::Visible {
+                    *visible = Visibility::Hidden;
+                } else {
+                    *visible = Visibility::Visible;
+                }
             }
             polarity_indicator_board.polarity = plate.state;
         } else {
-            visible.is_visible = true;
+            *visible = Visibility::Visible;
         }
     }
 }
