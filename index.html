@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>Electroplating</title>
+    <link data-trunk rel="copy-dir" href="./assets" />
+    <script>
+      if (
+        typeof AudioContext != "undefined" ||
+        typeof webkitAudioContext != "undefined"
+      ) {
+        var resumeAudio = function () {
+          if (
+            typeof g_WebAudioContext == "undefined" ||
+            g_WebAudioContext == null
+          )
+            return;
+          if (g_WebAudioContext.state == "suspended")
+            g_WebAudioContext.resume();
+          document.removeEventListener("click", resumeAudio);
+        };
+        document.addEventListener("click", resumeAudio);
+      }
+    </script>
+  </head>
+</html>

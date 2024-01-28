@@ -65,7 +65,7 @@ fn main() {
                 primary_window: Some(Window {
                     title: "Electroplating".into(),
                     resolution,
-                    resizable: false,
+                    resizable: true,
                     ..default()
                 }),
                 ..default()
@@ -100,12 +100,48 @@ fn main() {
     app.run();
 }
 
-fn setup(mut commands: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
+fn setup(
+    mut commands: Commands,
+    mut rapier_config: ResMut<RapierConfiguration>,
+    asset_server: Res<AssetServer>,
+) {
     rapier_config.gravity = Vec2::ZERO;
 
     let mut camera = Camera2dBundle::default();
     camera.projection.scaling_mode = ScalingMode::WindowSize(1.0);
     commands.spawn(camera);
+
+    // UI text
+    commands.spawn(TextBundle {
+        text: Text {
+            sections: vec![
+                TextSection {
+                    value: "POLARITY ".to_string(),
+                    style: TextStyle {
+                        font: asset_server.load("font/EffortsPro.ttf"),
+                        font_size: FONT_SIZE,
+                        color: Color::hex(COLOR_DARK).unwrap(),
+                    },
+                },
+                TextSection {
+                    value: "OFF".to_string(),
+                    style: TextStyle {
+                        font: asset_server.load("font/EffortsPro.ttf"),
+                        font_size: FONT_SIZE,
+                        color: Color::hex(COLOR_DARK).unwrap(),
+                    },
+                },
+            ],
+            ..default()
+        },
+        style: Style {
+            position_type: PositionType::Absolute,
+            top: Val::Px(TEXT_POSITION_TOP),
+            left: Val::Px(TEXT_POSITION_LEFT),
+            ..default()
+        },
+        ..default()
+    });
 }
 
 fn load_level(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -309,37 +345,6 @@ fn load_level(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             Plate::new(2),
         ));
-        // UI text
-        commands.spawn(TextBundle {
-            text: Text {
-                sections: vec![
-                    TextSection {
-                        value: "POLARITY ".to_string(),
-                        style: TextStyle {
-                            font: asset_server.load("font/EffortsPro.ttf"),
-                            font_size: FONT_SIZE,
-                            color: Color::hex(COLOR_DARK).unwrap(),
-                        },
-                    },
-                    TextSection {
-                        value: "OFF".to_string(),
-                        style: TextStyle {
-                            font: asset_server.load("font/EffortsPro.ttf"),
-                            font_size: FONT_SIZE,
-                            color: Color::hex(COLOR_DARK).unwrap(),
-                        },
-                    },
-                ],
-                ..default()
-            },
-            style: Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(TEXT_POSITION_TOP),
-                left: Val::Px(TEXT_POSITION_LEFT),
-                ..default()
-            },
-            ..default()
-        });
     });
 }
 
