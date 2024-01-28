@@ -1,65 +1,44 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
-use crate::{
-    plate::{Plate, PlateState},
-    ELECTRON_SIZE, OUTER_WALL_THICKNESS, WINDOW_HEIGHT, WINDOW_WIDTH,
-};
+use crate::plate::{Plate, PlateState};
 
 const INVERSE_SQUARE_ATTRACTION_FACTOR: f32 = 20.0;
 
 #[derive(Debug, Component)]
 pub struct Electron {
-    pub location: Vec3,
     pub speed: f32,
 }
 
 impl Electron {
-    pub fn new(speed: f32, location: Vec3) -> Self {
-        Self { location, speed }
+    pub fn new(speed: f32) -> Self {
+        Self { speed }
     }
 }
 
 pub fn electron_physics_system(
     time: Res<Time>,
-    mut query_electron: Query<(&mut Transform, &mut Electron), Without<Plate>>,
+    mut query_electron: Query<(&mut ExternalForce, &mut Electron, &Transform), Without<Plate>>,
     query_plates: Query<(&Transform, &Plate)>,
 ) {
-    for (mut electron_transform, mut electron) in query_electron.iter_mut() {
-        let electron_loc = &mut electron_transform.translation;
-        let mut components: Vec<Vec3> = Vec::new();
-        for (plate_transform, plate) in query_plates.iter() {
-            let plate_loc = &plate_transform.translation;
-            let magnitude_inverse_squared =
-                INVERSE_SQUARE_ATTRACTION_FACTOR / (*plate_loc - *electron_loc).length_squared();
-            let direction = *plate_loc - *electron_loc;
-            let force_component_vector = match plate.state {
-                PlateState::Negative => direction * -1.0 * magnitude_inverse_squared,
-                PlateState::Positive => direction * 1.0 * magnitude_inverse_squared,
-                PlateState::Off => direction * 0.0,
-            };
-            components.push(force_component_vector);
-        }
-        let force = components.iter().sum::<Vec3>();
-        let delta_pixel: Vec3 = force * time.delta_seconds() * electron.speed;
-        electron.location += delta_pixel;
-        electron_loc.x = electron.location.x.round();
-        electron_loc.y = electron.location.y.round();
-        electron_bounds(&mut electron.location);
+    let Ok((mut ext_force, electron, electron_transform)) = query_electron.get_single_mut() else {
+        return;
+    };
+    let electron_loc = &mut electron_transform.translation.xy();
+    let mut components = Vec::new();
+    for (plate_transform, plate) in &query_plates {
+        let plate_loc = &plate_transform.translation.xy();
+        let magnitude_inverse_squared =
+            INVERSE_SQUARE_ATTRACTION_FACTOR / (*plate_loc - *electron_loc).length_squared();
+        let direction = *plate_loc - *electron_loc;
+        let force_component_vector = match plate.state {
+            PlateState::Negative => direction * -1.0 * magnitude_inverse_squared,
+            PlateState::Positive => direction * 1.0 * magnitude_inverse_squared,
+            PlateState::Off => direction * 0.0,
+        };
+        components.push(force_component_vector);
     }
-}
-
-/// Set electron bounds with outer walls.
-fn electron_bounds(translation: &mut Vec3) {
-    translation.y = translation
-        .y
-        .min((WINDOW_HEIGHT / 2.0) - OUTER_WALL_THICKNESS - ELECTRON_SIZE / 2.0);
-    translation.y = translation
-        .y
-        .max((-WINDOW_HEIGHT / 2.0) + OUTER_WALL_THICKNESS + ELECTRON_SIZE / 2.0);
-    translation.x = translation
-        .x
-        .min((WINDOW_WIDTH / 2.0) - OUTER_WALL_THICKNESS - ELECTRON_SIZE / 2.0);
-    translation.x = translation
-        .x
-        .max((-WINDOW_WIDTH / 2.0) + OUTER_WALL_THICKNESS + ELECTRON_SIZE / 2.0);
+    let force = components.iter().sum::<Vec2>();
+    let delta_pixel = force * time.delta_seconds() * electron.speed;
+    ext_force.force = delta_pixel;
 }
